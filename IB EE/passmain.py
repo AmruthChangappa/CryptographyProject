@@ -1,3 +1,3 @@
-import passgen
 import passcrack
 
+guesses = passcrack.cracker()
