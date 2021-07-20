@@ -31,14 +31,36 @@ class IterableLCP(LazyCartesianProduct):
         self.sets = sets * repeat
         self.divs = []
         self.mods = []
+        self.maxSize = 1
         self.precompute()
     
+    def precompute(self):
+        for i in self.sets:
+            self.maxSize = self.maxSize * i.__len__()
+        length = len(self.sets)
+        factor = 1
+        for i in range((length - 1), -1, -1):
+            items = self.sets[i].__len__()
+            self.divs.insert(0, factor)
+            self.mods.insert(0, items)
+            factor = factor * items
+    
+    def entryAt(self, n):
+        length = len(self.sets)
+        if n < 0 or n >= self.maxSize:
+            raise IndexError
+        combination = []
+        for i in range(0, length):
+            combination.append(
+                self.sets[i][int(math.floor(n / self.divs[i])) % self.mods[i]])
+        return combination
+    
     def __len__(self):
-        return math.prod([len(i) for i in self.sets])
+        return self.maxSize
     
     def __getitem__(self, index):
         return self.entryAt(index)
-
+    
     def __iter__(self):
         return self
     
@@ -46,27 +68,8 @@ class IterableLCP(LazyCartesianProduct):
         return self.next()
     
     def next(self):
-        if self.currentIndex < self.__len__():
+        if self.currentIndex < self.maxSize:
             currentVal = self.entryAt(self.currentIndex)
             self.currentIndex += 1
             return currentVal
         raise StopIteration()
-
-    def precompute(self):
-        length = len(self.sets)
-        factor = 1
-        for i in range((length - 1), -1, -1):
-            items = len(self.sets[i])
-            self.divs.insert(0, factor)
-            self.mods.insert(0, items)
-            factor = factor * items
-
-    def entryAt(self, n):
-        length = len(self.sets)
-        if n < 0 or n >= self.__len__():
-            raise IndexError
-        combination = []
-        for i in range(0, length):
-            combination.append(
-                self.sets[i][int(math.floor(n / self.divs[i])) % self.mods[i]])
-        return combination

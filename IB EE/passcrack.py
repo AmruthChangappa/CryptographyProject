@@ -8,4 +8,3 @@ def cracker(scheme="ulns:12"):
     return guesses
 
 
-guesses = cracker("uls:8-n:4")
